@@ -42,6 +42,8 @@ var reg_build = /<!--\s*build:(\w+)(?:\(([^\)]+)\))?\s*([^\s]+)?\s*(?:(.*))?\s*-
 var reg_end = /<!--\s*endbuild\s*-->/;
 var reg_link = /(?:.*?)<link(?:.*?)href="(.*?)"(?:.*)/;
 var reg_script = /(?:.*?)<script(?:.*?)src="(.*?)"(?:.*)/;
+var reg_comment = /<!--(.*?)-->/;
+var reg_whitespace = /^(\s*)$/;
 
 function fread(f) {
     return fs.readFileSync(f, {encoding: 'utf-8'});
@@ -71,14 +73,15 @@ function getBlocks(body) {
                 throw new TypeError("Invalid build block type. Type string must be 'css' or 'js'.")
             }
             block = false;
-        }
-
-        if (block) {
+        } else if (block) {
             var re = block_type == "css" ? reg_link : reg_script;
-                block_lines.push(l.match(re)[1]);
-        }
+            var src = l.match(re);
 
-        if (build) {
+            if (l.match(reg_comment) && !build) {}
+            else if (l.match(reg_whitespace)) {}
+            else if (src) block_lines.push(src[1]);
+            else throw new RangeError("No asset source URI could be parsed on line: " + l);
+        } else if (build) {
             block = true;
 
             block_type = build[1];
