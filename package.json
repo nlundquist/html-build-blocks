@@ -1,0 +1,28 @@
+{
+  "name": "html-build-blocks",
+  "version": "0.0.1",
+  "description": "Tool to parse useref style build blocks from HTML.",
+  "keywords": [
+    "html",
+    "asset",
+    "useref",
+    "concat"
+  ],
+  "bugs": "http://github.com/nlundquist/html-build-blocks/issues",
+  "license": "MIT",
+  "author": "Nils Lundquist (nlundqu@gmail.com)",
+  "dependencies": {
+    "node-useref": "0.3.8",
+    "glob-all": "~3.0.1"
+  },
+  "devDependencies": {
+    "chai": "~1.10.0",
+    "fs": "0.0.2",
+    "path": "~0.4.9",
+    "mocha": "~2.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/nlundquist/html-build-blocks.git"
+  }
+}
