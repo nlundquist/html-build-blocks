@@ -52,8 +52,7 @@ function fread(f) {
 function getBlocks(body) {
     var lines = body.replace(/\r\n/g, '\n').split(/\n/),
         block = false,
-        css_sections = {},
-        js_sections = {},
+        sections = {},
         block_type,
         block_lines,
         block_path;
@@ -63,15 +62,8 @@ function getBlocks(body) {
             endbuild = reg_end.test(l);
 
         if (endbuild) {
-            if (block_type == 'css') {
-                css_sections[block_path] = block_lines;
-                block_lines = []
-            } else if (block_type == 'js') {
-                js_sections[block_path] = block_lines;
-                block_lines = []
-            } else {
-                throw new TypeError("Invalid build block type. Type string must be 'css' or 'js'.")
-            }
+            sections[block_path] = block_lines;
+            block_lines = []
             block = false;
         } else if (block) {
             var re = block_type == "css" ? reg_link : reg_script;
@@ -90,26 +82,19 @@ function getBlocks(body) {
         }
     });
 
-    return [js_sections, css_sections];
+    return sections;
 }
 
 module.exports.parseBlocks = function(path_globs) {
-    var css = {};
-    var js = {};
+    var all_blocks = {};
 
     glob.sync(path_globs, {nosort:true}).forEach(function(path) {
         var blocks = getBlocks(fread(path));
-        var js_blocks = blocks[0];
-        var css_blocks = blocks[1];
 
-        Object.keys(js_blocks).forEach(function(block_path) {
-           js[block_path] = js_blocks[block_path];
-        });
-
-        Object.keys(css_blocks).forEach(function(block_path) {
-            css[block_path] = css_blocks[block_path];
+        Object.keys(blocks).forEach(function(block_path) {
+           all_blocks[block_path] = blocks[block_path];
         });
     });
 
-    return [js, css];
+    return all_blocks;
 };
