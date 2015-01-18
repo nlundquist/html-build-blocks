@@ -22,5 +22,8 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/nlundquist/html-build-blocks.git"
+  },
+  "scripts": {
+    "test": "node node_modules/mocha/bin/mocha"
   }
 }
