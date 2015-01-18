@@ -46,7 +46,6 @@ Blocks are expressed as:
 ```
 
 - **type**: either `js` or `css`
-- **alternate search path**: (optional) By default the input files are relative to the treated file. Alternate search path allows one to change that
 - **path**: the file path of the optimized file, the target output
 
 
