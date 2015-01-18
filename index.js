@@ -63,7 +63,7 @@ function getBlocks(body) {
 
         if (endbuild) {
             sections[block_path] = block_lines;
-            block_lines = []
+            block_lines = [];
             block = false;
         } else if (block) {
             var re = block_type == "css" ? reg_link : reg_script;
