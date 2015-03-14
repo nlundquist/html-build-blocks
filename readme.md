@@ -13,7 +13,7 @@ npm install --save-dev html-build-blocks
 
 ## Usage
 
-The following example will parse HTML build blocks and use the returned map to create a gulp pipeline for concatination of those blocks. Note, this example doesn't order the files, they are concatinated in the order gulp loads them. To ensure ordering them simply add [gulp-order](https://github.com/sirlantis/gulp-order) to the pipeline.
+The following example will parse HTML build blocks and use the returned map to create a gulp pipeline for concatination of those blocks. Note, this example doesn't order the files, they are concatenated in the order gulp loads them. To ensure ordering them simply add [gulp-order](https://github.com/sirlantis/gulp-order) to the pipeline.
 
 ```js
 var gulp = require('gulp'),
