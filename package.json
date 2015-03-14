@@ -1,6 +1,6 @@
 {
   "name": "html-build-blocks",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Tool to parse useref style build blocks from HTML.",
   "keywords": [
     "html",
