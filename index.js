@@ -35,6 +35,7 @@
 
  **/
 
+
 var glob = require('glob-all');
 var fs = require('fs');
 
@@ -43,58 +44,68 @@ var reg_end = /<!--\s*endbuild\s*-->/;
 var reg_link = /(?:.*?)<link(?:.*?)href="(.*?)"(?:.*)/;
 var reg_script = /(?:.*?)<script(?:.*?)src="(.*?)"(?:.*)/;
 var reg_comment = /<!--(.*?)-->/;
+var reg_comment_start = /<!--/;
+var reg_comment_end = /-->/;
 var reg_whitespace = /^(\s*)$/;
 
 function fread(f) {
-    return fs.readFileSync(f, {encoding: 'utf-8'});
+  return fs.readFileSync(f, {encoding: 'utf-8'});
 }
 
-function getBlocks(body) {
-    var lines = body.replace(/\r\n/g, '\n').split(/\n/),
-        block = false,
-        sections = {},
-        block_type,
-        block_lines,
-        block_path;
+function getBlocks(body, path) {
+  var lines = body.replace(/\r\n/g, '\n').split(/\n/),
+    block = false,
+    incomment = false,
+    sections = {},
+    block_type,
+    block_lines,
+    block_path;
 
-    lines.forEach(function (l) {
-        var build = l.match(reg_build),
-            endbuild = reg_end.test(l);
+  lines.forEach(function (l, i) {
+    var build = l.match(reg_build),
+      endbuild = reg_end.test(l);
 
-        if (endbuild) {
-            sections[block_path] = block_lines;
-            block_lines = [];
-            block = false;
-        } else if (block) {
-            var re = block_type == "css" ? reg_link : reg_script;
-            var src = l.match(re);
+    if (l.trim().length == 0) {
+    } else if (incomment) {
+      if (l.match(reg_comment_end)) {
+        incomment = false;
+      }
+    } else if (l.match(reg_comment_start) && ! l.match(reg_comment)) {
+      incomment = true;
+    } else if (endbuild) {
+      sections[block_path] = block_lines;
+      block_lines = [];
+      block = false;
+    } else if (block) {
+      var re = block_type == "css" ? reg_link : reg_script;
+      var src = l.match(re);
 
-            if (l.match(reg_comment) && !build) {}
-            else if (l.match(reg_whitespace)) {}
-            else if (src) block_lines.push(src[1]);
-            else throw new RangeError("No asset source URI could be parsed on line: " + l);
-        } else if (build) {
-            block = true;
+      if (l.match(reg_comment) && !build) {}
+      else if (src) block_lines.push(src[1]);
+      else throw new RangeError("No asset source URI could be parsed on line #" + (i+1) + " " + path +
+          "\n" + l);
+    } else if (build) {
+      block = true;
 
-            block_type = build[1];
-            block_path = build[3];
-            block_lines = [];
-        }
-    });
+      block_type = build[1];
+      block_path = build[3];
+      block_lines = [];
+    }
+  });
 
-    return sections;
+  return sections;
 }
 
 module.exports.parseBlocks = function(path_globs) {
-    var all_blocks = {};
+  var all_blocks = {};
 
-    glob.sync(path_globs, {nosort:true}).forEach(function(path) {
-        var blocks = getBlocks(fread(path));
+  glob.sync(path_globs, {nosort:true}).forEach(function(path) {
+    var blocks = getBlocks(fread(path), path);
 
-        Object.keys(blocks).forEach(function(block_path) {
-           all_blocks[block_path] = blocks[block_path];
-        });
+    Object.keys(blocks).forEach(function(block_path) {
+      all_blocks[block_path] = blocks[block_path];
     });
+  });
 
-    return all_blocks;
+  return all_blocks;
 };
